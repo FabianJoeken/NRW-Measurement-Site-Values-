@@ -12,3 +12,5 @@ In the new popup is the data we actually want to save.
 The plan is to get the data through a scalper build with NodeJS and probably puppeteer.
 
 PS: I know there is download for a CSV-file with all the data in it, but the download links get created dynamically and can not be made up by just looking at something like the name of the measurement site (unfortunatly).
+
+What is the result:
