@@ -30,5 +30,5 @@ To run the project:
 npm run scrape
 ```
 
-If you want to see what puppeteer is doing, so what side is displayed at the moment, you can change `showBrowser` to true (line 7):
+If you want to see what puppeteer is doing, so what website is displayed at the moment, you can change `showBrowser` to true (line 7):
 `const showBrowser = true;`
