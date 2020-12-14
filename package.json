@@ -1,0 +1,25 @@
+{
+  "name": "nrw-measurement-site-values-",
+  "version": "1.0.0",
+  "description": "This is a proof-of-concept if one can get data of a specific measurement site from the website www.elwasweb.nrw.de",
+  "main": "index.js",
+  "scripts": {
+    "scrape": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SirSundays/NRW-Measurement-Site-Values-.git"
+  },
+  "keywords": [
+    "Scraper",
+    "NodeJS",
+    "Puppeteer",
+    "Water"
+  ],
+  "author": "SirSundays",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SirSundays/NRW-Measurement-Site-Values-/issues"
+  },
+  "homepage": "https://github.com/SirSundays/NRW-Measurement-Site-Values-#readme"
+}
