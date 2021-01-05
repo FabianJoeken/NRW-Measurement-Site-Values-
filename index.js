@@ -38,22 +38,24 @@ async function startProcess() {
         return rows.map(td => td.innerHTML);
     });
     console.log("[5/12] Measurement-Rows loaded");
+    console.log('[5/12] measurementRows[50]:', measurementRows[50]);
 
     // Find all measurements to click on
     // To open up all variables that got measured at one measurement a function "getPNAMW(someValue)" has to be executed
     // allMeasurements will include all these "someValues"
-    let allMeasurements = [];
+    var allMeasurements = [];
     measurementRows.forEach(row => {
         // First find the "getPNAMW(someValue)" in the innerHTML from rows
         // Then extract the value from it (we just ne the someValue part)
         // Push that number to allMeasurements
         allMeasurements.push(row.match(new RegExp("getPNAMW[(][0,1,2,3,4,5,6,7,8,9]+[)]"))[0].match(new RegExp("[0,1,2,3,4,5,6,7,8,9]+"))[0]);
     });
-    console.log("[6/12]Rows all processed")
+    console.log("[6/12]Rows all processed");
+    console.log('[6/12] allMeasurents[50]:', allMeasurements[50]);
 
     // Open up the variable for one random measurement
     // Wait for the site to load and then open up the "Probenliste" (the table with all the samples (but not the actual values))
-    let randomEntry = allMeasurements[Math.floor(Math.random() * allMeasurements.length - 1)]
+    const randomEntry = allMeasurements[50];
     await page.evaluate((randomEntry) => {
         // Slice randomEntry into the individual arguments
         args = randomEntry.split(",");
@@ -87,11 +89,12 @@ async function startProcess() {
         };
     });
     console.log("[9/12] All variable of the random measurement loaded");
+    console.log("[9/12] raw:", variableRows);
     console.log("[10/12] Converting to table")
 
     // Convert the HTML to just the actual Values
     // Idea: Maybe it is possible to get only the InnerHTML diretly in variableRows, but this does work for a proof-of-concept
-    let convertedRows = [];
+    var convertedRows = [];
     variableRows.body.forEach(row => {
         tmpRow = {};
         // Split the individual columns of that row
