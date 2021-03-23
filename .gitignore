@@ -124,4 +124,8 @@ dist
 .history
 .ionide
 
+## collected data ##
+/data/*
+/messstellen/*
+
 # End of https://www.toptal.com/developers/gitignore/api/node,visualstudiocode

@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "This is a proof-of-concept if one can get data of a specific measurement site from the website www.elwasweb.nrw.de",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "scrape": "node index.js"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -16,13 +17,15 @@
     "Puppeteer",
     "Water"
   ],
-  "author": "SirSundays",
+  "author": "FabianJoeken, SirSundays",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/SirSundays/NRW-Measurement-Site-Values-/issues"
   },
   "homepage": "https://github.com/SirSundays/NRW-Measurement-Site-Values-#readme",
   "dependencies": {
-    "puppeteer": "^5.5.0"
+    "csv-writer": "^1.6.0",
+    "puppeteer": "^5.5.0",
+    "spinnies": "^0.5.1"
   }
 }
