@@ -18,7 +18,7 @@ PS: I know there is download for a CSV-file with all the data in it, but the dow
     Furthermore downloading the data via a click on the download button is actually slower than extracting the data yourself via puppeteer.
 
 ### What is the result:
-<img src="https://raw.githubusercontent.com/SirSundays/NRW-Measurement-Site-Values-/master/screenshots/example-01.png" style="width: 50%" alt="Example Result"/>
+<img src="https://raw.githubusercontent.com/FabianJoeken/NRW-Measurement-Site-Values-/master/screenshots/example-01.png" style="width: 50%" alt="Example Result"/>
 
 ### How to get started?
 Initialise the project (installing dependencies (mainly puppeteer)):
