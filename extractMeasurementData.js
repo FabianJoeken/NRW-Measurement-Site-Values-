@@ -7,14 +7,14 @@ import Spinners from 'spinnies';
 
 //can be set statically cause its always the same 
 const header = [
-    { id: 'StoffNummer', title: 'Stoffnummer' },
+    { id: 'Stoff-Nummer', title: 'Stoffnummer' },
     { id: 'Stoff', title: 'Stoff' },
-    { id: 'Trennverfahren', title: 'Trennverfahren' },
+    { id: 'Trenn', title: 'Trennverfahren' },
     { id: 'Hinw.', title: 'Hinweis' },
-    { id: 'Messwert', title: 'Messwert' },
-    { id: 'Maßeinheit', title: 'Maßeinheit' },
+    { id: 'Mess', title: 'Messwert' },
+    { id: 'Maß', title: 'Maßeinheit' },
     { id: 'BG', title: 'BG' },
-    { id: 'Analysenmethode', title: 'Analysenmethode' }
+    { id: 'Analysen', title: 'Analysenmethode' }
 ]
 
 //exclude "weiter mit..."
@@ -38,7 +38,7 @@ if (!fs.existsSync(`${process.cwd()}/messstellen`)) {
 const spinners = new Spinners();
 
 async function createCSVs(id, showBrowser, from, until) {
-    spinners.add(`spinner-${id}`, { text: `extracting data from measurement point ${id}...`})
+    spinners.add(`spinner-${id}`, { text: `extracting data from measurement point ${id}...` })
     // Launch a new browser
     const browser = await puppeteer.launch({
         headless: !showBrowser,
@@ -121,11 +121,18 @@ async function createCSVs(id, showBrowser, from, until) {
                 }, filteredSamples, i);
                 // Wait for measurementdata to load
                 await page.waitForSelector(".ui-dialog .dataTables_scrollBody .display.dataTable tbody", { visible: true });
-                const csvData = await page.evaluate(async (header) => {
+                const csvData = await page.evaluate(async () => {
+                    let header = Array.from(document.querySelectorAll('.ui-dialog .dataTables_scrollBody .display.dataTable thead tr th'));
+                    header = header.map(td => td.innerText);
+                    //convert header can be static cause its always the same
+                    header[2] = "Trenn";
+                    header[4] = "Mess";
+                    header[5] = "Maß";
+                    header[7] = "Analysen";
                     let rows = Array.from(document.querySelectorAll('.ui-dialog .dataTables_scrollBody .display.dataTable tbody tr'));
                     rows = rows.map(td => td.innerText)
                     return await convertToJSON(rows, header);
-                }, header);
+                });
                 //write CSV for single measurement
                 await writeCSV(measurementPath + `/messdaten/${filteredSamples[i]['Datum der Probenahme']}.csv`, header, csvData)
                 //close popup so new one can be opened
@@ -138,7 +145,7 @@ async function createCSVs(id, showBrowser, from, until) {
     }
     //close browser when finished
     await browser.close();
-    spinners.succeed(`spinner-${id}`, { text: `Measurement point ${id} Done!`});
+    spinners.succeed(`spinner-${id}`, { text: `Measurement point ${id} Done!` });
 }
 
 //parse dates and check if sample is in range
