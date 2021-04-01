@@ -7,7 +7,7 @@ import Spinners from 'spinnies';
 
 //can be set statically cause its always the same 
 const header = [
-    { id: 'StoffNummer', title: 'Stoffnummer' },
+    { id: 'Stoff-Nummer', title: 'Stoffnummer' },
     { id: 'Stoff', title: 'Stoff' },
     { id: 'Trenn', title: 'Trennverfahren' },
     { id: 'Hinw.', title: 'Hinweis' },
