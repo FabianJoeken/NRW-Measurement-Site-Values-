@@ -23,7 +23,7 @@ async function Init() {
     //extract data for each point
     createCSVs(mPs, showBrowser, from, until);
 }
-    //TODO import to Database?
+//TODO import to Database?
 
 //Ask question and wait for answer
 function waitForUserInput(query) {

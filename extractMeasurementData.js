@@ -9,12 +9,12 @@ import Spinners from 'spinnies';
 const header = [
     { id: 'StoffNummer', title: 'Stoffnummer' },
     { id: 'Stoff', title: 'Stoff' },
-    { id: 'Trennverfahren', title: 'Trennverfahren' },
+    { id: 'Trenn', title: 'Trennverfahren' },
     { id: 'Hinw.', title: 'Hinweis' },
-    { id: 'Messwert', title: 'Messwert' },
-    { id: 'Maßeinheit', title: 'Maßeinheit' },
+    { id: 'Mess', title: 'Messwert' },
+    { id: 'Maß', title: 'Maßeinheit' },
     { id: 'BG', title: 'BG' },
-    { id: 'Analysenmethode', title: 'Analysenmethode' }
+    { id: 'Analysen', title: 'Analysenmethode' }
 ]
 
 //exclude "weiter mit..."
@@ -38,12 +38,15 @@ if (!fs.existsSync(`${process.cwd()}/messstellen`)) {
 const spinners = new Spinners();
 
 async function createCSVs(points, showBrowser, from, until) {
+    //browser counter
     let index = 0;
     points.forEach(async (point) => {
         let id = point["LGD-Nummer"]
+        //there can be max. 10 Browsers at once, can be changed (9 but keep in mind to start from zero)
         while (index >= 9) {
             await timeout();
         }
+        //increace index cause new Browser is opened
         index++;
         spinners.add(`spinner-${id}`, { text: `extracting data from measurement point ${id}...` })
         // Launch a new browser
@@ -128,11 +131,18 @@ async function createCSVs(points, showBrowser, from, until) {
                     }, filteredSamples, i);
                     // Wait for measurementdata to load
                     await page.waitForSelector(".ui-dialog .dataTables_scrollBody .display.dataTable tbody", { visible: true });
-                    const csvData = await page.evaluate(async (header) => {
+                    const csvData = await page.evaluate(async () => {
+                        let header = Array.from(document.querySelectorAll('.ui-dialog .dataTables_scrollBody .display.dataTable thead tr th'));
+                        header = header.map(td => td.innerText);
+                        //convert header can be static cause its always the same
+                        header[2] = "Trenn";
+                        header[4] = "Mess";
+                        header[5] = "Maß";
+                        header[7] = "Analysen";
                         let rows = Array.from(document.querySelectorAll('.ui-dialog .dataTables_scrollBody .display.dataTable tbody tr'));
                         rows = rows.map(td => td.innerText)
                         return await convertToJSON(rows, header);
-                    }, header);
+                    });
                     //write CSV for single measurement
                     await writeCSV(measurementPath + `/messdaten/${filteredSamples[i]['Datum der Probenahme']}.csv`, header, csvData)
                     //close popup so new one can be opened
@@ -144,7 +154,7 @@ async function createCSVs(points, showBrowser, from, until) {
             index--;
             spinners.fail(`spinner-${id}`, { text: 'Error: ' + e })
         }
-        //close browser when finished
+        //close browser when finished and decrease index so a new browser can be opened
         await browser.close();
         index--;
         spinners.succeed(`spinner-${id}`, { text: `Measurement point ${id} Done!` });
@@ -176,6 +186,7 @@ async function writeCSV(path, header, data) {
     await csvWriter.writeRecords(data);
 }
 
+//set 100 ms timeout if Function is called
 function timeout() {
     return new Promise(resolve => {
         setTimeout(function () {
