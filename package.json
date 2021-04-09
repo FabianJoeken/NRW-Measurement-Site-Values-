@@ -1,7 +1,7 @@
 {
   "name": "nrw-measurement-site-values-",
   "version": "1.0.0",
-  "description": "This is a proof-of-concept if one can get data of a specific measurement site from the website www.elwasweb.nrw.de",
+  "description": "This is a proof-of-concept to get data from the website www.elwasweb.nrw.de",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -20,10 +20,11 @@
   "author": "FabianJoeken, SirSundays",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/SirSundays/NRW-Measurement-Site-Values-/issues"
+    "url": "https://github.com/FabianJoeken/NRW-Measurement-Site-Values-/issues"
   },
-  "homepage": "https://github.com/SirSundays/NRW-Measurement-Site-Values-#readme",
+  "homepage": "https://github.com/FabianJoeken/NRW-Measurement-Site-Values-",
   "dependencies": {
+    "cli-progress": "^3.9.0",
     "csv-writer": "^1.6.0",
     "puppeteer": "^5.5.0",
     "spinnies": "^0.5.1"

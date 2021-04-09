@@ -127,5 +127,6 @@ dist
 ## collected data ##
 /data/*
 /messstellen/*
+/messstellen.zip
 
 # End of https://www.toptal.com/developers/gitignore/api/node,visualstudiocode
