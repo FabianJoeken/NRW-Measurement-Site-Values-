@@ -3,7 +3,8 @@ import puppeteer from 'puppeteer';
 import csvWriterImport from 'csv-writer';
 import path from 'path';
 import fs from 'fs';
-import Spinners from 'spinnies';
+import cliProgress from 'cli-progress';
+
 
 //can be set statically cause its always the same 
 const header = [
@@ -35,41 +36,47 @@ if (!fs.existsSync(`${process.cwd()}/messstellen`)) {
     await fs.mkdirSync(`${process.cwd()}/messstellen`);
 }
 
-const spinners = new Spinners();
-
-async function createCSVs(points, showBrowser, from, until) {
+async function createCSVs(points, showBrowser, from, until, browserCount) {
     //browser counter
     let index = 0;
-    points.forEach(async (point) => {
+    //create progress bar 
+    console.log("\n");
+    const bar = new cliProgress.SingleBar({
+        stopOnComplete: true,
+        hideCursor: true
+    }, cliProgress.Presets.shades_classic);
+    //total number of points.length start with 0
+    bar.start(points.length, 0);
+    await points.forEach(async (point) => {
         let id = point["LGD-Nummer"]
         //there can be max. 10 Browsers at once, can be changed (9 but keep in mind to start from zero)
-        while (index >= 9) {
+        while (index >= browserCount) {
             await timeout();
         }
         //increace index cause new Browser is opened
         index++;
-        spinners.add(`spinner-${id}`, { text: `extracting data from measurement point ${id}...` })
         // Launch a new browser
         const browser = await puppeteer.launch({
             headless: !showBrowser,
             args: ["--disable-setuid-sandbox"],
             'ignoreHTTPSErrors': true
         });
-        //adress for details of one measuring point
-        const adress = `https://www.elwasweb.nrw.de/elwas-hygrisc/src/gwmessstelle.php?src=gwmessstelle&tab_index=3&iw=1710&ih=677&block=allgemein&mstnr=${id}`;
-        //create directory for id of measuring point and its data if non existent
-        if (!fs.existsSync(`${process.cwd()}/messstellen/${id}/messdaten`)) {
-            await fs.mkdirSync(`${process.cwd()}/messstellen/${id}`);
-            await fs.mkdirSync(`${process.cwd()}/messstellen/${id}/messdaten`);
-        }
-        //set path to store data, measurement point is identified by its id
-        const measurementPath = path.resolve(
-            process.cwd(),
-            `./messstellen/${id}`,
-        );
-        // Open a new tab and go to the above definied webpage
-        const page = await browser.newPage();
         try {
+            //adress for details of one measuring point
+            const adress = `https://www.elwasweb.nrw.de/elwas-hygrisc/src/gwmessstelle.php?src=gwmessstelle&tab_index=3&iw=1710&ih=677&block=allgemein&mstnr=${id}`;
+            //create directory for id of measuring point and its data if non existent
+            if (!fs.existsSync(`${process.cwd()}/messstellen/${id}/messdaten`)) {
+                await fs.mkdirSync(`${process.cwd()}/messstellen/${id}`);
+                await fs.mkdirSync(`${process.cwd()}/messstellen/${id}/messdaten`);
+            }
+            //set path to store data, measurement point is identified by its id
+            const measurementPath = path.resolve(
+                process.cwd(),
+                `./messstellen/${id}`,
+            );
+            // Open a new tab and go to the above definied webpage
+            const page = await browser.newPage();
+
             await page.goto(adress);
             // Wait for the site to load and then open up the "Probenliste" (the table with all the samples (but not the actual values))
             await page.evaluate(() => {
@@ -78,27 +85,36 @@ async function createCSVs(points, showBrowser, from, until) {
                 // expose function to convert header and row data to JSON
                 window.convertToJSON = function (rows, header, clickValues) {
                     for (let i = 0; i < rows.length; i++) {
-                        let splittedRows = (rows[i].split("\t"));
-                        let objectString = '{';
-                        for (let j = 0; j < header.length; j++) {
-                            //filter for invalid expressions in JSON Data
-                            splittedRows[j] = splittedRows[j].trim();
-                            if (splittedRows[j].includes('"') || splittedRows[j].includes("\\")) {
-                                splittedRows[j] = splittedRows[j].split('"').join();
-                                splittedRows[j] = splittedRows[j].split("\\").join();
-                            }
-                            //replace headername and set onClick function as value
-                            if (header[j] === "onClick") {
-                                splittedRows[j] = clickValues[i].attributes[2].nodeValue;
-                            }
-                            objectString += `"${header[j]}": "${splittedRows[j]}"`;
-                            if (j !== header.length - 1) {
-                                objectString += ', '
+                        try {
+                            let splittedRows = (rows[i].split("\t"));
+                            let objectString = '{';
+                            //check if Probe has data in it
+                            if (splittedRows.length > 1) {
+                                for (let j = 0; j < header.length; j++) {
+                                    //filter for invalid expressions in JSON Data
+                                    splittedRows[j] = splittedRows[j].trim();
+                                    if (splittedRows[j].includes('"') || splittedRows[j].includes("\\")) {
+                                        splittedRows[j] = splittedRows[j].split('"').join();
+                                        splittedRows[j] = splittedRows[j].split("\\").join();
+                                    }
+                                    //replace headername and set onClick function as value
+                                    if (header[j] === "onClick") {
+                                        splittedRows[j] = clickValues[i].attributes[2].nodeValue;
+                                    }
+                                    objectString += `"${header[j]}": "${splittedRows[j]}"`;
+                                    if (j !== header.length - 1) {
+                                        objectString += ', '
+                                    } else {
+                                        objectString += '}'
+                                    }
+                                }
+                                rows[i] = JSON.parse(objectString);
                             } else {
-                                objectString += '}'
+                                rows[i] = JSON.parse('{"Stoff-Nummer": "N/A", "Stoff": "N/A", "Trenn": "N/A", "Hinw.": "N/A", "Mess": "N/A", "Maß": "N/A", "BG": "N/A", "Analysen": "N/A"}');
                             }
+                        } catch (e) {
+                            console.log(e);
                         }
-                        rows[i] = JSON.parse(objectString);
                     }
                     return rows;
                 }
@@ -148,16 +164,19 @@ async function createCSVs(points, showBrowser, from, until) {
                     //close popup so new one can be opened
                     await page.keyboard.press('Escape');
                 }
+
             });
         } catch (e) {
+            // log error message
+            console.log("\x1b[31m", id)
+        } finally {
+            //close browser when finished and decrease index so a new browser can be opened
             await browser.close();
             index--;
-            spinners.fail(`spinner-${id}`, { text: 'Error: ' + e })
+            //update progressbar + estimated time amount
+            bar.increment();
+            bar.updateETA();
         }
-        //close browser when finished and decrease index so a new browser can be opened
-        await browser.close();
-        index--;
-        spinners.succeed(`spinner-${id}`, { text: `Measurement point ${id} Done!` });
     });
 }
 
@@ -191,7 +210,7 @@ function timeout() {
     return new Promise(resolve => {
         setTimeout(function () {
             resolve();
-        }, 100);
+        }, 10);
     });
 };
 

@@ -5,7 +5,10 @@ import { InitJSON } from './refresh.js';
 import fs from 'fs';
 
 // Change this variable to show the puppeteer browser window
-const showBrowser = true;
+const showBrowser = false;
+
+// Change this variable for the amount of browsers that are opend simultaneously (keep in mind starting from 0)
+const browserCount = 9;
 
 async function Init() {
     const userInput = await waitForUserInput("Do you want to create/refresh the messstellen.json file? (y/n): ");
@@ -21,7 +24,7 @@ async function Init() {
     const from = period.split("-")[0];
     const until = period.split("-")[1];
     //extract data for each point
-    createCSVs(mPs, showBrowser, from, until);
+    createCSVs(mPs, showBrowser, from, until, browserCount);
 }
 //TODO import to Database?
 
@@ -36,11 +39,6 @@ function waitForUserInput(query) {
         rl.close();
         resolve(answer);
     }))
-}
-
-//Pick random number between min and max
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (Math.floor(max) - Math.floor(min)) + Math.floor(min));
 }
 
 Init();

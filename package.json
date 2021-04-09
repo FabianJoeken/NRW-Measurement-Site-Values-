@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/FabianJoeken/NRW-Measurement-Site-Values-",
   "dependencies": {
+    "cli-progress": "^3.9.0",
     "csv-writer": "^1.6.0",
     "puppeteer": "^5.5.0",
     "spinnies": "^0.5.1"
