@@ -2,7 +2,7 @@
 
 ### proof-of-concept to get measurement data from www.elwasweb.nrw.de
 
-As a test 6 measurements with different measurement methods are picked and samples for the given period are stored as CSV files
+The programm is able to download the measurementdata of each measurementpoint sorted by thier LGD-Number as CSV data.
 
 #### The problem:
 To get to the actual data of individual measurement points of this site you first have to start a search to get all samples (Daten -> Grundwassermessstellen -> WRRL-Messnetz -> imGütemessnetz -> los). 
@@ -34,3 +34,5 @@ If you start the project for the first time you have to answere the first questi
 
 If you want to see what puppeteer is doing, so what website is displayed at the moment, you can change `showBrowser` to true (line 8 in index.js):
 `const showBrowser = true;`
+
+With `browserCount` you can control the number of browsers that are used by puppeteer to extract the data (line 11 in index.js); 
