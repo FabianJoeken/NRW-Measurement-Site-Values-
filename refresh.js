@@ -2,9 +2,28 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import Spinners from 'spinnies';
+import csvWriterImport from 'csv-writer';
 
 const address = 'https://www.elwasweb.nrw.de/elwas-hygrisc/src/gwmessstelle.php?frame=FALSE#form4';
 const directory = process.cwd() + '/data';
+
+//can be set statically cause its always the same 
+const header = [
+    { id: 'LGD-Nummer', title: 'LGD-Nummer' },
+    { id: 'Name', title: 'Name' },
+    { id: 'Gemeinde', title: 'Gemeinde' },
+    { id: 'E32', title: 'E32' },
+    { id: 'N32', title: 'N32' },
+    { id: 'Eigentümer/Betreiber', title: 'Eigentümer/Betreiber' },
+    { id: 'GW- Stockw.', title: 'GW-Stockw.' },
+    { id: 'GW- Körper', title: 'GW-Körper' },
+    { id: 'GW- Leiter', title: 'GW-Leiter' },
+    { id: 'GW- Horizont', title: 'GW-Horizont' },
+    { id: 'Art', title: 'Art' },
+    { id: 'Mess pro gramm', title: 'Messprogramm' },
+    { id: 'Turnus Güte', title: 'Turnus Güte' },
+    { id: 'Turnus Wasserstand', title: 'Turnus Wasserstand' },
+]
 
 async function InitJSON(showBrowser) {
     let spinners = new Spinners();
@@ -59,12 +78,20 @@ async function InitJSON(showBrowser) {
                     if (!fs.existsSync(directory)) {
                         fs.mkdirSync(directory);
                     }
+
+                    //set filename and header for CSV writer
+                    const csvWriter = csvWriterImport.createObjectCsvWriter({
+                        path: directory + "/messstellen.csv",
+                        header: header,
+                    })
+                    await csvWriter.writeRecords(data);
+
                     //write messstellen.json form array data to ./data
                     await fs.writeFile(directory + "/messstellen.json", JSON.stringify(data), 'utf8', function (err) {
                         if (err) {
                             console.log(err);
                         } else {
-                            spinners.succeed('spinner', { text: 'Done! New messstellen file saved to ./data' });
+                            spinners.succeed('spinner', { text: 'Done! New messstellen files saved to ./data' });
                         }
                     })
                 });
@@ -77,6 +104,7 @@ async function InitJSON(showBrowser) {
     // Browser schließen
     await browser.close();
 }
+
 
 export { InitJSON };
 
